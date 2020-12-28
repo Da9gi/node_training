@@ -1,3 +1,4 @@
+const md5 = require("md5");
 const {db} = require("../db/index");
 
 function Init(app) {
@@ -10,14 +11,18 @@ function Init(app) {
         const { body } = request;
         const {fName, lName, email, password} = body;
 
-        const createUser = await db.models.users.create({
+        const createdUser = await db.models.users.create({
             fName, 
             lName, 
             email, 
-            password,
+            password: md5(password),
         });
 
-        response.status(201).send(createUser);
+        const { password: dbPassword, ...extractedUser } = JSON.parse(
+            JSON.stringify(createdUser)
+          );
+
+        response.status(201).send(extractedUser);
     });
 
 }
